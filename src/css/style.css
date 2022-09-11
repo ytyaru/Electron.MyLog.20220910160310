@@ -1,10 +1,10 @@
 @charset "utf-8";
 :root {
-    --line-of-chars:40;
+    --line-of-chars:35;
     --font-size:calc(100vw / (var(--line-of-chars)));
     --font-size-code:calc(100vw / (var(--line-of-chars) * 2));
     --line-height:1.5em; /*1.5〜1.75em*/
-    --letter-spacing:0.05em; /*0.05〜0.075em*/
+    --letter-spacing:0.05em; /*0.05〜0.1em*/
     --fg-color:#000;
     --bg-color:#fff;
     --anchor-fg-color:#00f;

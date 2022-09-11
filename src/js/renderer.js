@@ -1,9 +1,6 @@
 window.addEventListener('DOMContentLoaded', async(event) => {
     Loading.setup()
     console.log('DOMContentLoaded!!');
-    //console.log(getComputedStyle(document.querySelector('main:not([hidden])')).getPropertyValue('inline-size'));
-    //const LINE_OF_PX = parseFloat(Css.Main.get('inline-size')); // １行の表示領域 なぜかこれで高速化した
-    //console.log(LINE_OF_PX);
     const db = new MyLogDb()
     await window.myApi.loadDb(db.path)
     let setting = await Setting.load()
@@ -38,7 +35,6 @@ window.addEventListener('DOMContentLoaded', async(event) => {
             const isDel = await db.delete(ids)
             if (!isDel) { return false }
             document.getElementById('post-list').innerHTML = await db.toHtml(document.getElementById('address').value)
-            //document.getElementById('post-list').insertAdjacentHTML('afterbegin', await db.toHtml())
             const uiSetting = await getUiSetting()
             console.log(uiSetting)
             await update(`つぶやき削除:${new Date().toISOString()}`, uiSetting)
@@ -88,7 +84,7 @@ window.addEventListener('DOMContentLoaded', async(event) => {
     })
     //ocument.getElementById('line-of-chars').dispatchEvent(new Event('input'))
     //document.getElementById('line-of-chars').dispatchEvent(new Event('input', { bubbles: true, cancelable: true,}))
-    setFontSize() 
+    //setFontSize() 
     resize() 
     document.getElementById('line-of-chars').dispatchEvent(new Event('resize'))
     document.getElementById('post-list').innerHTML = await db.toHtml(document.getElementById('address').value)
@@ -165,49 +161,22 @@ window.addEventListener('DOMContentLoaded', async(event) => {
         } catch (e) { Toaster.toast(e.message, true) }
     }
     function setFontSize() {
-        const MIN = 16
-        /*
-        const MAIN = document.querySelector('main:not([hidden])')
-        const LINE_OF_PX = parseFloat(getComputedStyle(MAIN).getPropertyValue('inline-size'))
-        const fontSize = LINE_OF_PX / document.getElementById('line-of-chars').value
-        console.log(fontSize, LINE_OF_PX, document.getElementById('line-of-chars').value);
-        document.querySelector(':root').style.setProperty('--font-size', `${fontSize}px`);
-        */
-        const MAIN = document.querySelector('main:not([hidden])')
-        const LINE_OF_PX = parseFloat(getComputedStyle(MAIN).getPropertyValue('inline-size'))
-        //const LETTER_SPACING_SIZE = 0.05 * document.getElementById('line-of-chars').value
-        //const fontSize = LINE_OF_PX / (document.getElementById('line-of-chars').value - LETTER_SPACING_SIZE)
-        //const fontSize = LINE_OF_PX / document.getElementById('line-of-chars').value * 1.05 // letter-spacing:0.05em
-        //let fontSize = (LINE_OF_PX / document.getElementById('line-of-chars').value)// letter-spacing:0.05em
-        //console.log(fontSize, LINE_OF_PX, LETTER_SPACING_SIZE, document.getElementById('line-of-chars').value);
-        //600px / 40字 * 1.05
         const lineOfChars = document.getElementById('line-of-chars').value
-        const fontSize = LINE_OF_PX / (lineOfChars * 1.05) - 0.1 // letter-spacing:0.05em
-        console.log(fontSize, LINE_OF_PX, lineOfChars);
+        const fontSize = FontSize.calc(lineOfChars)
         document.querySelector(':root').style.setProperty('--font-size', `${fontSize}px`);
         document.getElementById('line-of-chars-count').innerText = lineOfChars
-        document.querySelector(':root').style.setProperty('--font-size-code', `${Math.max((fontSize / 2), MIN)}px`);
-
+        document.querySelector(':root').style.setProperty('--font-size-code', `${FontSize.calcHalf(lineOfChars)}px`);
+        console.log('setFontSize()', fontSize)
     }
     document.querySelector('#line-of-chars').addEventListener('input', async()=>{ setFontSize() })
     function resize() {
-        setFontSize()
-        //console.log(window.innerWidth)
-        //if (window.innerWidth < 16 * 20) { window.innerWidth = 16 * 20; return; }
-        const MIN = 16
-        const MAIN = document.querySelector('main:not([hidden])')
-        const LINE_OF_PX = parseFloat(getComputedStyle(MAIN).getPropertyValue('inline-size'))
-        const max = Math.max(Math.min(Math.floor(LINE_OF_PX / MIN), 50), 20) // 20〜50字
-        //const max = Math.min(Math.floor(LINE_OF_PX / MIN), 50)
-        console.log('max:', max)
+        const fontSize = setFontSize()
         const preValue = document.getElementById('line-of-chars').value
+        const max = FontSize.calcMax(preValue)
         console.log('preValue:', preValue)
         document.getElementById('line-of-chars').max = max
         const lineOfChars = document.getElementById('line-of-chars').value
         console.log('lineOfChars:', lineOfChars)
-        //if (max < lineOfChars) { document.getElementById('line-of-chars').value = max }
-        //if (preValue < lineOfChars) {
-        //if (max < lineOfChars) {
         if (max < preValue) {
             document.getElementById('line-of-chars').value = max
             document.getElementById('line-of-chars-count').innerText = max
@@ -220,21 +189,5 @@ window.addEventListener('DOMContentLoaded', async(event) => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(()=>{ resize() }, 500); // 500ms
     })
-    /*
-    window.addEventListener("resize", function (e) { // 全画面やリサイズ時に字／行の値を再計算する
-        console.debug("resize");
-        const MAIN = document.querySelector('main:not([hidden])')
-        //const LINE_OF_PX = parseFloat(Css.Main.get('inline-size')); // １行の表示領域 なぜかこれで高速化した
-        const LINE_OF_PX = parseFloat(getComputedStyle(MAIN).getPropertyValue('inline-size'))
-        //const fontSize = LINE_OF_PX / document.getElementById('line-of-chars').value
-        const lineOfChars = document.getElementById('line-of-chars').value
-        const fontSize = LINE_OF_PX / (lineOfChars * 1.05) - 0.1 // letter-spacing:0.05em
-        console.log(fontSize, LINE_OF_PX, lineOfChars);
-        document.querySelector(':root').style.setProperty('--font-size', `${fontSize}px`);
-        document.getElementById('line-of-chars-count').innerText = lineOfChars
-    });
-    */
 })
-
-
 
